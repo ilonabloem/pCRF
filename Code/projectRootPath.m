@@ -20,39 +20,20 @@ addpath(genpath(filePath));
 %-- Save parent folder as rootPath
 rootPath    = fileparts(filePath);
 
-%-- setup data root path
-switch useCluster
+%-- setup data root path  
+userName        = getenv('USER'); % find username. OSX: getenv('USER'), windows: getenv('USERNAME')
+
+switch userName
 	
-    case true
-        
-        dataRootPath     = fullfile('/projectnb', 'vision', 'popCRF', 'Data', 'modelBased');
-        
-    case false
-        
-        userName        = getenv('USER'); % find username. OSX: getenv('USER'), windows: getenv('USERNAME')
-        
-        switch userName
-            
-            case 'ibloem' % cluster home directory
-                
-                dataRootPath     = fullfile('~', 'Git', 'popCRF', 'Data');
+	case 'ibloem' % cluster home directory
+		
+		dataRootPath     = fullfile('~', 'Git', 'pCRF', 'Data');
 
-            case 'ilonabloem' % local directory
-
-                dataRootPath     = fullfile('~', 'Documents', 'popCRF', 'Data');
-
-            case 'lnv2'
-                
-                dataRootPath    = fullfile('/Users','lnv2','Documents','BU','popCRF_data','Data');
-
-            otherwise % for all other users data and code should both be in the rootPath 
-                
-                fprintf(['Assuming standard project layout:\n' ...
-                            '  code directory: %s\n' ...
-                            '  data directory: %s\n'], ...
-                            fullfile(filePath), fullfile(rootPath, 'Data'));
-                dataRootPath     = fullfile(rootPath, 'Data');
-        
-        
-        end
+	otherwise % for all other users data and code should both be in the rootPath 
+		
+		fprintf(['Assuming standard project layout:\n' ...
+					'  code directory: %s\n' ...
+					'  data directory: %s\n'], ...
+					fullfile(filePath), fullfile(rootPath, 'Data'));
+		dataRootPath     = fullfile(rootPath, 'Data');
 end
