@@ -120,12 +120,15 @@ for exp = 1:numel(voxIDs)
     xlim([0 numel(tsIndx)]); ylim(ylims); set(gca, 'TickDir', 'out', 'YTick', linspace(ylims(1), ylims(2), 7))
 
     
-    subplot(3,2,6)
+    ax = subplot(3,2,6);
     hold on, 
     plot(log10(linspace(2,100,100)), fitModel, 'r', 'LineWidth', 2)
     plot(log10([16 16]), [-2 ylims(end)], 'k:')
+    set(gca, 'xtick', log10([10 100]), 'XTickLabel', [10 100], 'XTickLabelRotation', 45, 'TickDir', 'out')
+    minorTicks = [2:1:9 20:10:90];
+    ax.XMinorTick = 'on';
+    ax.XAxis.MinorTickValues = log10(minorTicks);
     xlabel('Contrast (%)'); ylabel('BOLD response')
-    set(gca, 'xtick', log10(contrasts), 'XTickLabel', contrasts, 'XTickLabelRotation', 45)
     box off; axis square
     title(sprintf('%.2f crossR2 time series fit', crossResults.out.crossR2(voxID)))
     
