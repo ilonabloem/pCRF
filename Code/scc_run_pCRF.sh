@@ -3,13 +3,13 @@
 #$ -m ae
 #$ -N run_pCRF # Name the job
 #$ -t 1-8 # set up as an array job - submit independent job for each subject
-#$ -l h_rt=72:00:00 # Request enough time
-#$ -pe omp 16 # Request parallel environment
-#$ -l mem_per_core=16G
+#$ -l h_rt=12:00:00 # Request enough time
+#$ -pe omp 4 # Request parallel environment
+#$ -l mem_per_core=8G
 #$ -P vision
 #$ -cwd #run in current working directory
-#$ -o /usr2/postdoc/ibloem/Git/popCRF/logs/out_$JOB_NAME_$JOB_ID-$TASK_ID.log
-#$ -e /usr2/postdoc/ibloem/Git/popCRF/logs/error_$JOB_NAME_$JOB_ID-$TASK_ID.log
+#$ -o /usr2/postdoc/ibloem/Git/pCRF/logs/out_$JOB_NAME_$JOB_ID-$TASK_ID.log
+#$ -e /usr2/postdoc/ibloem/Git/pCRF/logs/error_$JOB_NAME_$JOB_ID-$TASK_ID.log
 
 
 echo "Job started ..."

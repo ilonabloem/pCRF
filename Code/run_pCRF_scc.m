@@ -11,7 +11,7 @@ opts.createNull = false;
 opts.tasks      = {'JN2022Event', 'RapidEvent'};
 opts.num_cores  = numCores;
 opts.subjNames  = subjNames(arrayID);
-opts.useHRF     = 'spm';
+opts.useHRF     = 'fithrf'; %'spm';
 
 fprintf('START \n\n')
 fprintf('subject: %s \n', opts.subjNames{1})
@@ -21,20 +21,20 @@ fprintf('array ID: %i \n', arrayID)
 %% -- Run model -SPM HRF - no cross val
 opts.doCross    = false;
 
-fprintf('Running models w/ spm HRF for participant %s \n', opts.subjNames{1})
+fprintf('Running models w/ fit HRF for participant %s \n', opts.subjNames{1})
 run_pCRF(opts)
 
 %% -- Run model -SPM HRF - with cross val
 opts.doCross    = true;
 
-fprintf('Running crossvalidated models w/ spm HRF for participant %s \n', opts.subjNames{1})
+fprintf('Running crossvalidated models w/ fit HRF for participant %s \n', opts.subjNames{1})
 run_pCRF(opts)
 
 %% -- Run model -SPM HRF - null dist no cross val
-opts.doCross    = false;
-opts.createNull = true;
-opts.compute    = true;
-
-fprintf('Running null models w/ spm HRF for participant %s \n', opts.subjNames{1})
-run_pCRF(opts)
+% opts.doCross    = false;
+% opts.createNull = true;
+% opts.compute    = true;
+% 
+% fprintf('Running null models w/ spm HRF for participant %s \n', opts.subjNames{1})
+% run_pCRF(opts)
 

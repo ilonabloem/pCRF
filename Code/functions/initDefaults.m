@@ -31,6 +31,9 @@ defaults = { %Default settings for popCRF
             'Rmaxseed', 2;
             'nseed', 2.5;
             'offsetseed', -1;
+            'g1HRFseed', 5;
+            'g2HRFseed', 8;
+            'wHRFseed', 0.5;
             'conBounds', [0.04 1];
             'pRFeccBounds', [0.6 8.5];
             'pRFR2bound', 10;

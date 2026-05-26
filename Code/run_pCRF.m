@@ -87,7 +87,7 @@ if isempty(gcp('nocreate')) && opts.num_cores > 1
 end
 
 %% Update stim duration based on task
-if numel(opts.tasks) > 1
+if numel(opts.tasks) == 1
     if contains(opts.tasks, 'RapidEvent')
         opts.stimOn     = 0.5;
     elseif contains(opts.tasks, 'JN2022Event')
@@ -166,7 +166,12 @@ for s = 1:numSubjects
             roiIndx         = modelInput.roi_indx;
             
             %-- setup hrf
-            if isfield(modelInput, 'hrf') && strcmp(opts.useHRF, 'indv')
+            if strcmp(opts.useHRF, 'fithrf')
+                
+                opts.whichHRF   = 'fitHRF';
+                opts.HRF        = [];
+                
+            elseif isfield(modelInput, 'hrf') && strcmp(opts.useHRF, 'indv')
                 
                 opts.whichHRF   = 'indvHRF';
                 opts.HRF        = struct('modelOutput', cell(numel(opts.ROInames),1));

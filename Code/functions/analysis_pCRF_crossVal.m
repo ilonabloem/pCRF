@@ -55,23 +55,31 @@ end
 
 %% Setup HRF
 switch opts.whichHRF
+    case 'fitHRF'
+        
+        HRF(1).data     = [];
+        HRF(1).roiIndx  = ones(size(data(1).TSeries,1),1);
+        model           = str2func('fit_pCRF_wHRF');
+        
     case 'spmHRF'
         
         % same HRF for all voxels
         HRF(1).data     = spmhrf(0:stepSize:20);
         HRF(1).roiIndx  = ones(size(data(1).TSeries,1),1);
+        model           = str2func('fit_pCRF');
         
     case 'indvHRF'
         
         % define your own HRF
-        model = HRF(1).modelOutput.Model;
+        hrffunc = HRF(1).modelOutput.Model;
         for r = 1:numel(HRF)
-             tmpHRF     = model(HRF(r).modelOutput.estParams, (0:stepSize:20));
+             tmpHRF     = hrffunc(HRF(r).modelOutput.estParams, (0:stepSize:20));
              HRF(r).data= tmpHRF/max(tmpHRF(:));
         end
+        model           = str2func('fit_pCRF');
 end
 
-if opts.doPlots
+if opts.doPlots && ~isempty(HRF(1).data)
    
     figure('Color', [1 1 1], 'Position', [60 100 750 800]) 
     for r = 1:numel(HRF)
@@ -148,15 +156,17 @@ end
 croppedTRs      = (totalTR - start(1)) * numRuns;
 
 %% Define parameter seeds
+modelInit       = model([], {'initialize'});
 switch opts.doGrid
     case true
-        
-        startParam      = NaN(numel(opts.C50grid), 4);
-        startParam(:,1) = opts.C50grid;
-        startParam(:,2:4) = ones(numel(opts.C50grid),3) .* [opts.nseed opts.Rmaxseed opts.offsetseed];
-         
+  
+        startParam          = NaN(numel(opts.C50grid), numel(modelInit.init));
+        startParam(:,1)     = opts.C50grid;
+        startParam(:,2:end) = ones(numel(opts.C50grid),numel(modelInit.init)-1) .* modelInit.init(2:end);
+
     case false
-        startParam      = [opts.C50seed opts.nseed opts.Rmaxseed opts.offsetseed];
+        
+        startParam          = modelInit.init;
 end
 
 %% Leave one run out cross-validation
@@ -205,10 +215,11 @@ else
     
     %-- Preallocate variables
     out.Params.All      = NaN(size(TSeries,1), size(startParam,2));
-    out.Params.C50      = NaN(size(TSeries,1), size(startParam,2));
-    out.Params.n        = NaN(size(TSeries,1), size(startParam,2));
-    out.Params.Rmax     = NaN(size(TSeries,1), size(startParam,2));
-    out.Params.offset   = NaN(size(TSeries,1), size(startParam,2));
+    out.Params.C50      = NaN(size(TSeries,1), 1);
+    out.Params.n        = NaN(size(TSeries,1), 1);
+    out.Params.Rmax     = NaN(size(TSeries,1), 1);
+    out.Params.offset   = NaN(size(TSeries,1), 1);
+    out.Params.HRF      = NaN(size(TSeries,1), 3); % 3 free params
     out.exitflag        = NaN(size(TSeries,1), 1);
     out.SSE             = NaN(size(TSeries,1), 1);
     out.R2              = NaN(size(TSeries,1), 1);
@@ -278,7 +289,7 @@ for vox = 1:size(TSeries,1)
         
         %-- setup model
         trainData{1}            = 'initialize';
-        startVals               = fit_pCRF(startParam(1,:), trainData);
+        startVals               = model(startParam(1,:), trainData);
         
         %-- grid search to determine c50 seed for optimization
         switch opts.doGrid 
@@ -287,27 +298,26 @@ for vox = 1:size(TSeries,1)
                 trainData{1}    = 'prediction';    
                 gridCorr        = NaN(1, numel(opts.C50grid));
                 for ii = 1:numel(opts.C50grid)
-                    
-                    gridResults     = fit_pCRF(startParam(ii,:), trainData);
-                    
+
+                    gridResults     = model(startParam(ii,:), trainData);
+
                     % compute correlation (independent from amplitude and baseline) 
                     gridCorr(ii)    = corr(gridResults.estTseries(:), gridResults.Tseries(:));
                     
                 end
                 
                 [~, seedIdx]    = max(gridCorr);
-                trainData{1}    = 'initialize';   
-                startVals       = fit_pCRF(startParam(seedIdx,:), trainData);
+                startVals.init  = startParam(seedIdx,:);
 
         end
 
         trainData{1}            = 'optimize';    
         [estParams, SSE, exitflag] = ...
-            fmincon(@(x) fit_pCRF(x, trainData), startVals.init, [],[],[],[], startVals.lb, startVals.ub, [], startVals.opts);
+            fmincon(@(x) model(x, trainData), startVals.init, [],[],[],[], startVals.lb, startVals.ub, [], startVals.opts);
 
         %-- Get predictions for test data 
         testData{1}             = 'prediction';   
-        testResults             = fit_pCRF(estParams, testData);
+        testResults             = model(estParams, testData);
        
         switch opts.doCross
             case true
@@ -331,7 +341,12 @@ for vox = 1:size(TSeries,1)
                         out.Params.n(vox, :)        = estParams(:,2);
                         out.Params.Rmax(vox, :)     = estParams(:,3);
                         out.Params.offset(vox, :)   = estParams(:,4);
-                        out.Params.labels   = {'C50', 'Slope', 'Rmax', 'Offset'}; 
+                        out.Params.labels           = testResults.paramLabels; 
+                        
+                        switch opts.whichHRF
+                            case 'fitHRF'
+                                out.Params.HRF(vox, :)  = estParams(:,5:end);
+                        end
 
                         out.fulltSeries(vox,:)      = testResults.Tseries;
                         out.fullprediction(vox,:)   = testResults.estTseries;
@@ -345,7 +360,7 @@ for vox = 1:size(TSeries,1)
                         
                         %-- Save params, SSE and R2 for the shuffled contrast fits 
                         out.nullParams.All(nfold,vox, :)  = estParams;
-                        out.nullParams.labels       = {'C50', 'Slope', 'Rmax', 'Offset'};
+                        out.nullParams.labels       = testResults.paramLabels;
                         
                         out.nullSSE(nfold,vox)      = SSE;
                         out.nullR2(nfold,vox)       = 1 - (sum((testResults.estTseries - testResults.Tseries).^2) ...
@@ -373,6 +388,7 @@ end % end of voxel loop
 out.date            = date;
 
 inputs              = struct;
+inputs.model        = model;
 inputs.I            = I;
 inputs.TSeries      = TSeries;
 inputs.HRF          = HRF;
