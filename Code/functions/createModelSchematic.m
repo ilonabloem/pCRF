@@ -1,18 +1,23 @@
 %% Figure 2 deconvolution vs model-based approach to estimate the CRF
-
+if ~exist('opts', 'var')
+    opts    = [];
+    %-- set up paths
+    [~, dataRoot]   = projectRootPath;
+    %-- initialize variables
+    opts            = initDefaults(opts);
+else
+    dataRoot        = fullfile(opts.projectRoot, 'Data');
+end
 
 %-- set up paths
-[projectRoot, ...
-    dataRoot]   = projectRootPath;
 outDir          = fullfile(dataRoot, '..', 'modelResults');
-figureDir       = fullfile(projectRoot, 'Figures');
+figureDir       = fullfile(opts.projectRoot, 'Figures');
 if ~exist(fullfile(figureDir, 'modelSchematic'), 'dir'), mkdir(fullfile(figureDir, 'modelSchematic')), end
 
 %-- initialize variables
 opts.doPlots    = true;
 opts.savePlots  = true;
 opts.compute    = false;
-opts            = initDefaults(opts);
 
 exmplSubject    = find(ismember(opts.subjNames, '004'));
 whichROI        = find(ismember(opts.ROInames, 'V1'));
@@ -132,6 +137,7 @@ for exp = 1:numel(voxIDs)
     box off; axis square
     title(sprintf('%.2f crossR2 time series fit', crossResults.out.crossR2(voxID)))
     
+    if ~exist(fullfile(figureDir, 'Figure2'), 'dir'), mkdir(fullfile(figureDir, 'Figure2')), end
     sgtitle(sprintf('sub %s - ROI %s - vox #%i', opts.subjNames{exmplSubject}, opts.ROInames{whichROI}, voxID))
     print(figHandle, fullfile(figureDir, 'Figure2', sprintf('Fig2_s%s_vox-%i_modelSchematic', opts.subjNames{exmplSubject}, voxID)), '-dpdf')
 

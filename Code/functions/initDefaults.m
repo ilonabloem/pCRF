@@ -9,9 +9,11 @@ function s = initDefaults(s)
 if nargin < 1, s = []; end
 if isempty(s), s = struct; end
 
+projectRoot = projectRootPath;
+
 defaults = { %Default settings for popCRF
-            'projectRoot', projectRootPath;
-            'figureDir', fullfile(projectRootPath, 'Figures');
+            'projectRoot', projectRoot;
+            'figureDir', fullfile(projectRoot, 'Figures');
             'compute', false;            % set to true or false - will redo preprocessing of the data
             'doCross', true;            % set to true or false - run without or without crossvalidation
             'doGrid', true;             % set to true or false - run without or without grid search for C50 seed

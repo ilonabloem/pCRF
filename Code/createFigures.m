@@ -7,6 +7,7 @@ opts            = [];
 opts.savePlots  = true;
 opts.compute    = false;
 opts.tasks      = [{'JN2022Event'} {'RapidEvent'}];
+opts.useHRF     = 'fit';
 opts            = initDefaults(opts);
 
 % load modeling results
