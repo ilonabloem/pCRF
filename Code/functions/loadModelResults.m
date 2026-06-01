@@ -2,14 +2,15 @@ function allResults = loadModelResults(opts)
 
 if ~exist('opts', 'var')
     opts    = [];
+    %-- set up paths
+    [~, dataRoot]   = projectRootPath;
+    %-- initialize variables
+    opts            = initDefaults(opts);
+else
+    dataRoot        = fullfile(opts.projectRoot, 'Data');
 end
 
-%-- set up paths
-[~, dataRoot]   = projectRootPath;
 outDir          = fullfile(dataRoot, '..', 'modelResults');
-
-%-- initialize variables
-opts            = initDefaults(opts);
 
 numSubjects     = numel(opts.subjNames);
 numROIs         = numel(opts.ROInames);

@@ -9,7 +9,7 @@ end
 if  ~exist('opts', 'var') || isempty(opts)
     opts            = initDefaults(opts);
 end
-if  ~exist('opts.figureDir', 'var') || isempty(opts.figureDir)
+if ~isfield(opts, 'figureDir') || isempty(opts.figureDir)
     projectRoot     = projectRootPath;
     opts.figureDir  = fullfile(projectRoot, 'Figures');
 end
@@ -59,6 +59,8 @@ for param = 1:numel(paramLabels) % {rmax, slope, c50}
 
     end
 end
+
+if ~exist(fullfile(opts.figureDir, 'stats'), 'dir'), mkdir(fullfile(opts.figureDir, 'stats')), end
 
 % results from voxel-wise fisher-z correlation
 corr_modelVSdeconv = table(whichTest, corr_pvals, corr_df, corr_tstat, corr_mean, corr_CI(:,1), corr_CI(:,2), ...

@@ -1,18 +1,23 @@
 %% Figure 2 deconvolution vs model-based approach to estimate the CRF
-
+if ~exist('opts', 'var')
+    opts    = [];
+    %-- set up paths
+    [~, dataRoot]   = projectRootPath;
+    %-- initialize variables
+    opts            = initDefaults(opts);
+else
+    dataRoot        = fullfile(opts.projectRoot, 'Data');
+end
 
 %-- set up paths
-[projectRoot, ...
-    dataRoot]   = projectRootPath;
 outDir          = fullfile(dataRoot, '..', 'modelResults');
-figureDir       = fullfile(projectRoot, 'Figures');
+figureDir       = fullfile(opts.projectRoot, 'Figures');
 if ~exist(fullfile(figureDir, 'modelSchematic'), 'dir'), mkdir(fullfile(figureDir, 'modelSchematic')), end
 
 %-- initialize variables
 opts.doPlots    = true;
 opts.savePlots  = true;
 opts.compute    = false;
-opts            = initDefaults(opts);
 
 exmplSubject    = find(ismember(opts.subjNames, '004'));
 whichROI        = find(ismember(opts.ROInames, 'V1'));
@@ -120,15 +125,19 @@ for exp = 1:numel(voxIDs)
     xlim([0 numel(tsIndx)]); ylim(ylims); set(gca, 'TickDir', 'out', 'YTick', linspace(ylims(1), ylims(2), 7))
 
     
-    subplot(3,2,6)
+    ax = subplot(3,2,6);
     hold on, 
     plot(log10(linspace(2,100,100)), fitModel, 'r', 'LineWidth', 2)
     plot(log10([16 16]), [-2 ylims(end)], 'k:')
+    set(gca, 'xtick', log10([10 100]), 'XTickLabel', [10 100], 'XTickLabelRotation', 45, 'TickDir', 'out')
+    minorTicks = [2:1:9 20:10:90];
+    ax.XMinorTick = 'on';
+    ax.XAxis.MinorTickValues = log10(minorTicks);
     xlabel('Contrast (%)'); ylabel('BOLD response')
-    set(gca, 'xtick', log10(contrasts), 'XTickLabel', contrasts, 'XTickLabelRotation', 45)
     box off; axis square
     title(sprintf('%.2f crossR2 time series fit', crossResults.out.crossR2(voxID)))
     
+    if ~exist(fullfile(figureDir, 'Figure2'), 'dir'), mkdir(fullfile(figureDir, 'Figure2')), end
     sgtitle(sprintf('sub %s - ROI %s - vox #%i', opts.subjNames{exmplSubject}, opts.ROInames{whichROI}, voxID))
     print(figHandle, fullfile(figureDir, 'Figure2', sprintf('Fig2_s%s_vox-%i_modelSchematic', opts.subjNames{exmplSubject}, voxID)), '-dpdf')
 

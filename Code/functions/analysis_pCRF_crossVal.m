@@ -219,7 +219,7 @@ else
     out.Params.n        = NaN(size(TSeries,1), 1);
     out.Params.Rmax     = NaN(size(TSeries,1), 1);
     out.Params.offset   = NaN(size(TSeries,1), 1);
-    out.Params.HRF      = NaN(size(TSeries,1), 3); % 3 free params
+    out.Params.HRF      = NaN(size(TSeries,1), 2); % 2 free params
     out.exitflag        = NaN(size(TSeries,1), 1);
     out.SSE             = NaN(size(TSeries,1), 1);
     out.R2              = NaN(size(TSeries,1), 1);

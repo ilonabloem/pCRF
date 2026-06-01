@@ -3,6 +3,8 @@ function out = visualize_fig4(opts, taskResults, doStats)
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)
     opts            = []; 
+    opts            = initDefaults(opts);
+
 end
 if  ~exist('taskResults', 'var') || isempty(taskResults)
     opts.tasks      = {'JN2022Event'};
@@ -14,13 +16,12 @@ if  ~exist('doStats', 'var') || isempty(doStats)
 end
 
 %--
-opts            = initDefaults(opts);
 numSubjects     = numel(opts.subjNames);
 
 %-- Combine parameters across subjects for 2d histograms
 avg_pCRFparams  = NaN(numSubjects, 3, numel(opts.ROInames));
 avg_deconvparams= NaN(numSubjects, 3, numel(opts.ROInames));
-paramLabels     = {'Rmax', 'Slope', 'C50'};
+paramLabels     = {'Ampl', 'Slope', 'C50'};
 
 %-- setup roi colors
 roiColors   = {[0.3176    0.3961    0.6824]; %[0.2744    0.3735    0.9857];
