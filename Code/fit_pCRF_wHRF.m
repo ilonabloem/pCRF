@@ -103,7 +103,7 @@ switch mode
             out.Tseries = Select_TSeries;
             out.estTseries   = est_Tseries;
             out.estParams   = cat(1, C50_est, n_est, Ampl_est, base_est, gain1_est, gain2_est, weight_est);
-            out.paramLabels = {'C50', 'Slope', 'Ampl', 'Offset', 'hrfgain1', 'hrfgain2', 'hrfweight'};
+            out.paramLabels = {'C50', 'Slope', 'Rmax', 'Offset', 'hrfgamma1', 'hrfgamma2', 'hrfweight'};
                             
         end
         
