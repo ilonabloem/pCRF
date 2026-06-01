@@ -42,7 +42,7 @@ allResults      = struct('allParams', structSize, ...
 
 for ii = 1:numTasks
     
-    saveName    = sprintf('sub-group_task-%s_modelResults.mat', taskNames{ii});
+    saveName    = sprintf('sub-group_task-%s_%sHRF_modelResults.mat', taskNames{ii}, opts.useHRF);
     
     if exist(fullfile(outDir, saveName), 'file') > 0 && opts.compute == 0
 

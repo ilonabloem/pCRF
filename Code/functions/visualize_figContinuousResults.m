@@ -19,7 +19,7 @@ numSubjects     = numel(opts.subjNames);
 numROIs         = numel(opts.ROInames);
 
 figAvgParams    = figure('Color', [1 1 1], 'Position', [124  525 450 530]);
-set(figAvgParams,'Units', 'Pixels', 'PaperPositionMode','Auto','PaperUnits','points','PaperSize',[1400 700])
+set(figAvgParams,'Units', 'Pixels', 'PaperPositionMode','Auto','PaperUnits','points','PaperSize',[450 530])
 figlayout       = tiledlayout(2,1);
 R2layout        = tiledlayout(figlayout, 1, 3);
 avgPrmlayout    = tiledlayout(figlayout, 1, 4);
@@ -27,6 +27,9 @@ avgPrmlayout    = tiledlayout(figlayout, 1, 4);
 paramLabels     = {'C50', 'Rmax', 'Slope'};
 avg_pCRFparams  = NaN(numSubjects, 3, numROIs);
 improvementSSE  = NaN(numSubjects, numROIs);
+avgCrossR2_rapid = NaN(numSubjects, numROIs);
+avgCrossR2_jneuro = NaN(numSubjects, numROIs);
+
 pvals           = NaN(numROIs, 1);
 CIs             = NaN(numROIs, 2);
 tVals           = NaN(numROIs, 1);
@@ -90,9 +93,9 @@ for roi = 1:numROIs
     caxis(ax,[0 0.005])
     axis square; box off
     if roi == 1
-        ylabel('Rapid Estimates', 'FontSize', 16)
-        xlabel('Event-related Estimates', 'FontSize', 16)
-        title(R2layout, 'voxelwise crossval R2', 'FontSize', 20)
+        ylabel('Rapid Estimates', 'FontSize', 10)
+        xlabel('Event-related Estimates', 'FontSize', 10)
+        title(R2layout, 'voxelwise crossval R2', 'FontSize', 14)
         set(ax, "TickDir", "out")
     end
 
@@ -112,6 +115,7 @@ for roi = 1:numROIs
         title(axSSE, 'Norm SSE')
         xlim(axSSE, [0.5 3]);xticks(axSSE, [1 2 3]); xticklabels(axSSE, opts.ROInames)
         set(axSSE, 'TickDir', 'out')
+        ylim([0 20])
         hold on,
     end
     scatter(axSSE, roi*ones(numSubjects,1), improvementSSE(:,roi), indvDotsize*11, roiColors{roi}, 'filled','MarkerFaceAlpha', 0.3);
@@ -129,7 +133,7 @@ for roi = 1:numROIs
         set(axC50, 'TickDir', 'out')
         hold on,
         ylim([0 1])
-        title(avgPrmlayout, 'median parameter estimates', 'FontSize', 20)
+        title(avgPrmlayout, 'median parameter estimates', 'FontSize', 14)
     end
     scatter(axC50, roi*ones(numSubjects,1), avg_pCRFparams(:,1,roi), indvDotsize*11, roiColors{roi}, 'filled','MarkerFaceAlpha', 0.3);
     errorbar(axC50, roi, mean(avg_pCRFparams(:,1,roi)), std(avg_pCRFparams(:,1,roi))/sqrt(numSubjects), ...
@@ -143,7 +147,7 @@ for roi = 1:numROIs
         title('Rmax')
         xlim([0.5 3]);xticks([1 2 3]); xticklabels(opts.ROInames)
         set(axRmax, 'TickDir', 'out')
-        ylim([1 15])
+        ylim([0 8])
         hold on,
     end
     scatter(axRmax, roi*ones(numSubjects,1), avg_pCRFparams(:,2,roi), indvDotsize*11, roiColors{roi}, 'filled','MarkerFaceAlpha', 0.3);

@@ -97,9 +97,9 @@ for roi = 1:3
     caxis(ax,[0 0.01])
     axis square; box off
     if roi == 1
-        ylabel('Deconvolution Estimates', 'FontSize', 16)
-        xlabel('Model-based Estimates', 'FontSize', 16)
-        title(c50layout, 'Semi-saturation (C50)', 'FontSize', 20)
+        ylabel('Deconvolution Estimates', 'FontSize', 10)
+        xlabel('Model-based Estimates', 'FontSize', 10)
+        title(c50layout, 'Semi-saturation (C50)', 'FontSize', 14)
     end
     
     % rMax
@@ -114,9 +114,9 @@ for roi = 1:3
     axis square
 
     if roi == 1
-        ylabel('Deconvolution Estimates', 'FontSize', 16)
-        xlabel('Model-based Estimates', 'FontSize', 16)
-        title(rmaxlayout, 'Response saturation (Rmax)', 'FontSize', 20)
+        ylabel('Deconvolution Estimates', 'FontSize', 10)
+        xlabel('Model-based Estimates', 'FontSize', 10)
+        title(rmaxlayout, 'Response saturation (Rmax)', 'FontSize', 14)
     end
 
     % slope
@@ -131,9 +131,9 @@ for roi = 1:3
     axis square; box off
     
     if roi == 1
-        ylabel('Deconvolution Estimates', 'FontSize', 16)
-        xlabel('Model-based Estimates', 'FontSize', 16)
-        title(slopelayout, 'Transducer (n)', 'FontSize', 20)
+        ylabel('Deconvolution Estimates', 'FontSize', 10)
+        xlabel('Model-based Estimates', 'FontSize', 10)
+        title(slopelayout, 'Transducer (n)', 'FontSize', 14)
     end
 
 end
@@ -171,8 +171,8 @@ for roi = 1:numel(opts.ROInames)
         end
 
         legend(ax1, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 16)
-        xlabel(ax1, 'Model-based C50','FontSize',16), 
-        ylabel(ax1, 'Deconvolution C50','FontSize',16)
+        xlabel(ax1, 'Model-based C50','FontSize',10), 
+        ylabel(ax1, 'Deconvolution C50','FontSize',10)
         set(ax1, 'XLim', [0 1], 'XTick',0:.5:1, 'XtickLabels', [0 50 100], ...
             'YLim', [0 1], 'YTick', 0:.5:1, 'YtickLabels', [0 50 100]);
         axis(ax1, 'square');
@@ -193,8 +193,8 @@ for roi = 1:numel(opts.ROInames)
         end
 
         legend(ax2, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 16)
-        xlabel(ax2, 'Model-based Rmax','FontSize',16), 
-        ylabel(ax2, 'Deconvolution Rmax','FontSize',16)
+        xlabel(ax2, 'Model-based Rmax','FontSize',10), 
+        ylabel(ax2, 'Deconvolution Rmax','FontSize',10)
         set(ax2, 'XLim', [0 10], 'XTick',0:5:10, 'YLim', [0 10], 'YTick', 0:5:10);
         axis(ax2, 'square');
     end
@@ -214,8 +214,8 @@ for roi = 1:numel(opts.ROInames)
         end
 
         legend(ax3, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 16)
-        xlabel(ax3, 'Model-based n','FontSize',16), 
-        ylabel(ax3, 'Deconvolution n','FontSize',16)
+        xlabel(ax3, 'Model-based n','FontSize',10), 
+        ylabel(ax3, 'Deconvolution n','FontSize',10)
         set(ax3, 'XLim', [0 10], 'XTick',0:5:10, 'YLim', [0 10], 'YTick', 0:5:10);
         axis(ax3, 'square');
     end
@@ -234,6 +234,6 @@ out.paramLabels         = paramLabels;
 
 % Do stats modeling comparison on same dataset
 if doStats > 0
-    computeStats_modelComparison(opts, out, taskResults.fisherCorr, taskResults.avgcrossR2)
+    computeStats_modelComparison(opts, out, taskResults.fisherCorr)
 end
 

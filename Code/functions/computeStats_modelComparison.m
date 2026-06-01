@@ -85,20 +85,3 @@ if opts.savePlots > 0
            'WriteRowNames', false);
 end
 
-%-- Report crossval R2
-[~,p,ci,stat]   = ttest(crossR2, 0);
-df              = stat.df;
-tstat           = stat.tstat;
-meanR2          = mean(crossR2,1);
-ROInames        = opts.ROInames;
-
-crossvalR2      = table(ROInames(:), p(:), df(:), tstat(:), meanR2(:), ci(1,:)', ci(2,:)', ...
-                    'VariableNames', {'ROI','p','df','tstat', 'mean', 'lb_mean', 'ub_mean'});
-
-fprintf('ttest crossval R2 > 0 (model-based) \n ')
-disp(crossvalR2)
-if opts.savePlots > 0
-    writetable(crossvalR2, fullfile(opts.figureDir, 'stats', sprintf('%s_crossValR2.csv', 'JN2022Event')), ...
-           'FileType', 'text', 'Delimiter', ',', ...
-           'WriteRowNames', false);
-end
