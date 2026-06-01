@@ -166,7 +166,7 @@ for s = 1:numSubjects
             roiIndx         = modelInput.roi_indx;
             
             %-- setup hrf
-            if strcmp(opts.useHRF, 'fithrf')
+            if strcmp(opts.useHRF, 'fit')
                 
                 opts.whichHRF   = 'fitHRF';
                 opts.HRF        = [];
