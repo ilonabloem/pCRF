@@ -12,7 +12,6 @@ end
 %-- set up paths
 outDir          = fullfile(dataRoot, '..', 'modelResults');
 figureDir       = fullfile(opts.projectRoot, 'Figures');
-if ~exist(fullfile(figureDir, 'modelSchematic'), 'dir'), mkdir(fullfile(figureDir, 'modelSchematic')), end
 
 %-- initialize variables
 opts.doPlots    = true;

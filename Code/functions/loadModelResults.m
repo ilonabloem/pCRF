@@ -27,7 +27,6 @@ allResults      = struct('allParams', structSize, ...
                          'SSE', structSize, ...
                          'nullSSE', structSize, ...
                          'crossR2', structSize, ...
-                         'avgcrossR2', structSize, ...
                          'nullR2', structSize, ...
                          'voxCorr', structSize, ...
                          'fisherCorr', structSize, ...
@@ -61,7 +60,7 @@ for ii = 1:numTasks
             loadName    = 'allFIR_fits_wAdapt_GROUP_CRF_09-Oct-2021.mat';
             loadDir     = fullfile(dataRoot, 'JNeuro2022');
             
-            assert(exist(fullfile(loadDir, loadName), 'file') > 0, 'Original parameter estimates not found')
+            assert(exist(fullfile(loadDir, loadName), 'file') > 0, 'Deconvolution analysis parameter estimates not found')
             data        = load(fullfile(loadDir, loadName)); 
             jneuroPrms  = data.ALL_estParams;
             allResults(ii).jneuroParams = jneuroPrms;
@@ -71,7 +70,6 @@ for ii = 1:numTasks
         %-- preallocate variables
         cellSize                  = cell(numSubjects, numel(opts.ROInames)); % needs to be a cell - different voxel numbers
         allResults(ii).crossR2    = cellSize;
-        allResults(ii).avgcrossR2 = NaN(numSubjects, numel(opts.ROInames));
         allResults(ii).allParams  = cellSize;
         allResults(ii).avgParams  = cellSize;
         allResults(ii).SSE        = cellSize;
@@ -139,7 +137,6 @@ for ii = 1:numTasks
                         case "cross" % extract cross validated r2
 
                             allResults(ii).crossR2{s,roi}    = modelResults.out.crossR2(roiIndx);
-                            allResults(ii).avgcrossR2(s,roi) = median(modelResults.out.crossR2(roiIndx));
 
                         case "null" % extract noise floor model fits
 

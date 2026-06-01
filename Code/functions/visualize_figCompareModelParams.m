@@ -1,4 +1,4 @@
-function out = visualize_fig4(opts, taskResults, doStats)
+function out = visualize_figCompareModelParams(opts, taskResults, doStats)
 
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)
@@ -21,7 +21,7 @@ numSubjects     = numel(opts.subjNames);
 %-- Combine parameters across subjects for 2d histograms
 avg_pCRFparams  = NaN(numSubjects, 3, numel(opts.ROInames));
 avg_deconvparams= NaN(numSubjects, 3, numel(opts.ROInames));
-paramLabels     = {'Ampl', 'Slope', 'C50'};
+paramLabels     = {'Rmax', 'Slope', 'C50'};
 
 %-- setup roi colors
 roiColors   = {[0.3176    0.3961    0.6824]; %[0.2744    0.3735    0.9857];
@@ -94,7 +94,7 @@ for roi = 1:3
         'YLim', ptsC50([1 end]), 'YTick', [0 .5 1], 'YTickLabel', [0 50 100], ...
         'YDir', 'normal');
     colormap(ax, roiColorMap{roi})
-    clim(ax,[0 0.01])
+    caxis(ax,[0 0.01])
     axis square; box off
     if roi == 1
         ylabel('Deconvolution Estimates', 'FontSize', 16)
@@ -110,7 +110,7 @@ for roi = 1:3
         'YLim', ptsRmax([1 end]), 'YTick', ptsRmax([1 21 41]), ...
         'YDir', 'normal');
     colormap(ax, roiColorMap{roi})
-    clim(ax, [0 0.01]); box off
+    caxis(ax, [0 0.01]); box off
     axis square
 
     if roi == 1
@@ -127,7 +127,7 @@ for roi = 1:3
         'YLim', ptsSlope([1 end]), 'YTick', ptsSlope([1 21 41]), ...
         'YDir', 'normal');
     colormap(ax, roiColorMap{roi})
-    clim(ax, [0 0.01])
+    caxis(ax, [0 0.01])
     axis square; box off
     
     if roi == 1
