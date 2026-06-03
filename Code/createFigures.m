@@ -18,8 +18,8 @@ createModelSchematic
 
 % Figure 4 - CRF parameter comparison between model-based and deconvolution approaches
 doStats         = true;
-visualize_figCompareModelParams(opts, allResults(1), doStats);
+fig_CompareModelParams(opts, allResults(1), doStats);
 
 % Figure 5 - CRF parameters for continuous contrast presentation experimental design
 doStats         = true;
-visualize_figContinuousResults(opts, allResults, doStats);
+fig_ContinuousResults(opts, allResults, doStats);

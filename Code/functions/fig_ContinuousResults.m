@@ -1,5 +1,5 @@
 
-function visualize_figContinuousResults(opts, allResults, doStats)
+function fig_ContinuousResults(opts, allResults, doStats)
 
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)

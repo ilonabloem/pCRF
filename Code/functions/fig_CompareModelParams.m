@@ -1,4 +1,4 @@
-function out = visualize_figCompareModelParams(opts, taskResults, doStats)
+function out = fig_CompareModelParams(opts, taskResults, doStats)
 
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)
