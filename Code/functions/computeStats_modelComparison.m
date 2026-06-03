@@ -1,4 +1,4 @@
-function computeStats_modelComparison(opts, avgParams, fisherCorr, crossR2)
+function computeStats_modelComparison(opts, avgParams, fisherCorr)
 
 if  ~exist('avgParams', 'var') || isempty(avgParams)
     error('Need to provide avgParams struct (output from visualize_fig4.m)')

@@ -187,7 +187,7 @@ if doStats > 0
     fprintf('ttest model-based SSE improvement compared to null\n ')
     disp(modelImprovement)
     if opts.savePlots > 0
-        if ~exist(fullfile(opts.figureDir, 'stats')) > 0, mkdir(fullfile(opts.figureDir, 'stats')), end
+        if ~exist(fullfile(opts.figureDir, 'stats'), 'dir') > 0, mkdir(fullfile(opts.figureDir, 'stats')), end
         writetable(modelImprovement, fullfile(opts.figureDir, 'stats',sprintf('%s_modelImprovement.csv', 'RapidEvent')), ...
                'FileType', 'text', 'Delimiter', ',', ...
                'WriteRowNames', false);

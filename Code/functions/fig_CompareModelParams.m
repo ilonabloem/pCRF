@@ -62,7 +62,7 @@ for roi = 1:3
     
     for sub = 1:numSubjects
         
-        % Reorder parameter estimates to match 2 models
+        % Reorder parameters to match 2 models
         [~, idx]    = ismember(paramLabels, taskResults.paramLabels);
         pCRFParam   = taskResults.allParams{sub,roi}(:,idx);
         deconvParam = taskResults.jneuroParams(sub,roi).est_params_allVoxels ./ [1 1 100];
@@ -138,7 +138,7 @@ for roi = 1:3
 
 end
 
-%-- avg param comparison
+%-- Correlation 
 % C50
 c50layout.Layout.Tile = 1;
 ax1 = nexttile(c50layout);
@@ -155,69 +155,68 @@ mrkr_alpha      = 0.3;
 indvDotsize     = 20;
 errBarWidth     = 2;
 for roi = 1:numel(opts.ROInames)
+    
+    fishz_corr  = taskResults.fisherCorr(:,:,roi);
+    corr        = tanh(fishz_corr);
+    avg_corr    = tanh(mean(fishz_corr,1))
+    std_corr    = tanh(std(fishz_corr));
        
     % c50
     hold(ax1, 'on'),
     % plot scatter subjs (low opacity, match ROI color)
-    scatter(ax1, avg_pCRFparams(:,3,roi), avg_deconvparams(:,3,roi), 'o', 'MarkerFaceColor', cell2mat(roiColors(roi)) ,'MarkerEdgeColor',cell2mat(roiColors(roi)) ,'SizeData',indvDotsize*2, 'MarkerFaceAlpha',mrkr_alpha, 'MarkerEdgeAlpha',mrkr_alpha, 'HandleVisibility','off');
-    if roi == 3
-        % trend line 1,1
-        plot(ax1, linspace(0,1,10),linspace(0,1,10), 'k--','HandleVisibility','off')
-        for rroi=1:3
-            % plot scatter ROI means (high opacity, with error bars, ROI color)
-            scatter(ax1, mean(avg_pCRFparams(:,3,rroi)), mean(avg_deconvparams(:,3,rroi)),'o','filled','SizeData',(indvDotsize*6),'MarkerEdgeColor', 'k','MarkerFaceColor', cell2mat(roiColors(rroi)));
-            errorbar(ax1, mean(avg_pCRFparams(:,3,rroi)), mean(avg_deconvparams(:,3,rroi)),std(avg_pCRFparams(:,3,rroi))/sqrt(numSubjects),'k.','horizontal','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
-            errorbar(ax1, mean(avg_pCRFparams(:,3,rroi)), mean(avg_deconvparams(:,3,rroi)),std(avg_deconvparams(:,3,rroi))/sqrt(numSubjects),'k.','vertical','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
-        end
+    scatter(ax1, roi*ones(1,numSubjects), corr(:,3), 'o', ...
+        'MarkerFaceColor', cell2mat(roiColors(roi)) ,'MarkerEdgeColor',cell2mat(roiColors(roi)), ...
+        'SizeData',indvDotsize*2, 'MarkerFaceAlpha',mrkr_alpha, 'MarkerEdgeAlpha',mrkr_alpha, 'HandleVisibility','off');
 
-        legend(ax1, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 16)
-        xlabel(ax1, 'Model-based C50','FontSize',10), 
-        ylabel(ax1, 'Deconvolution C50','FontSize',10)
-        set(ax1, 'XLim', [0 1], 'XTick',0:.5:1, 'XtickLabels', [0 50 100], ...
-            'YLim', [0 1], 'YTick', 0:.5:1, 'YtickLabels', [0 50 100]);
-        axis(ax1, 'square');
+    % plot scatter ROI means (high opacity, with error bars, ROI color)
+    scatter(ax1, roi, avg_corr(:,3),'o','filled','SizeData',(indvDotsize*6),'MarkerEdgeColor', 'k','MarkerFaceColor', cell2mat(roiColors(roi)));
+    errorbar(ax1, roi, avg_corr(:,3), std_corr(:,3)/sqrt(numSubjects),'k.','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
+
+    if roi == 3
+        %legend(ax1, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 10)
+        ylabel(ax1, 'corr','FontSize',10)
+        set(ax1, 'XLim', [0 4], 'XTick', 1:3, 'XTickLabel', opts.ROInames, ...
+            'YLim', [-0.2 1])
+%         set(ax1, 'XLim', [0 1], 'XTick',0:.5:1, 'XtickLabels', [0 50 100], ...
+%             'YLim', [0 1], 'YTick', 0:.5:1, 'YtickLabels', [0 50 100]);
     end
 
     % Rmax
     hold(ax2, 'on'),
     % plot scatter subjs (low opacity, match ROI color)
-    scatter(ax2, avg_pCRFparams(:,1,roi), avg_deconvparams(:,1,roi), 'o', 'MarkerFaceColor', cell2mat(roiColors(roi)) ,'MarkerEdgeColor',cell2mat(roiColors(roi)) ,'SizeData',indvDotsize*2, 'MarkerFaceAlpha',mrkr_alpha, 'MarkerEdgeAlpha',mrkr_alpha, 'HandleVisibility','off');
-    if roi == 3
-        % trend line 1,1
-        plot(ax2, [0 10],[0 10], 'k--','HandleVisibility','off')
-        for rroi=1:3
-            % plot scatter ROI means (high opacity, with error bars, ROI color)
-            scatter(ax2, mean(avg_pCRFparams(:,1,rroi)), mean(avg_deconvparams(:,1,rroi)),'o','filled','SizeData',(indvDotsize*6),'MarkerEdgeColor', 'k','MarkerFaceColor', cell2mat(roiColors(rroi)));
-            errorbar(ax2, mean(avg_pCRFparams(:,1,rroi)), mean(avg_deconvparams(:,1,rroi)),std(avg_pCRFparams(:,1,rroi))/sqrt(numSubjects),'k.','horizontal','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
-            errorbar(ax2, mean(avg_pCRFparams(:,1,rroi)), mean(avg_deconvparams(:,1,rroi)),std(avg_deconvparams(:,1,rroi))/sqrt(numSubjects),'k.','vertical','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
-        end
+    scatter(ax2, roi*ones(1,numSubjects), corr(:,1), 'o', ...
+        'MarkerFaceColor', cell2mat(roiColors(roi)) ,'MarkerEdgeColor',cell2mat(roiColors(roi)), ...
+        'SizeData',indvDotsize*2, 'MarkerFaceAlpha',mrkr_alpha, 'MarkerEdgeAlpha',mrkr_alpha, 'HandleVisibility','off');
 
-        legend(ax2, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 16)
-        xlabel(ax2, 'Model-based Rmax','FontSize',10), 
-        ylabel(ax2, 'Deconvolution Rmax','FontSize',10)
-        set(ax2, 'XLim', [0 10], 'XTick',0:5:10, 'YLim', [0 10], 'YTick', 0:5:10);
-        axis(ax2, 'square');
+    % plot scatter ROI means (high opacity, with error bars, ROI color)
+    scatter(ax2, roi, avg_corr(:,1),'o','filled','SizeData',(indvDotsize*6),'MarkerEdgeColor', 'k','MarkerFaceColor', cell2mat(roiColors(roi)));
+    errorbar(ax2, roi, avg_corr(:,1), std_corr(:,1)/sqrt(numSubjects),'k.','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
+
+    if roi == 3
+%         legend(ax2, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 10)
+        ylabel(ax2, 'corr','FontSize',10)
+        set(ax2, 'XLim', [0 4], 'XTick', 1:3, 'XTickLabel', opts.ROInames, ...
+            'YLim', [-0.2 1])
+        %set(ax2, 'XLim', [0 10], 'XTick',0:5:10, 'YLim', [0 10], 'YTick', 0:5:10);
     end
 
     % Slope
     hold(ax3, 'on'),
     % plot scatter subjs (low opacity, match ROI color)
-    scatter(ax3, avg_pCRFparams(:,2,roi), avg_deconvparams(:,2,roi), 'o', 'MarkerFaceColor', cell2mat(roiColors(roi)) ,'MarkerEdgeColor',cell2mat(roiColors(roi)) ,'SizeData',indvDotsize*2, 'MarkerFaceAlpha',mrkr_alpha, 'MarkerEdgeAlpha',mrkr_alpha, 'HandleVisibility','off');
-    if roi == 3
-        % trend line 1,1
-        plot(ax3, [0 10],[0 10], 'k--','HandleVisibility','off')
-        for rroi=1:3
-            % plot scatter ROI means (high opacity, with error bars, ROI color)
-            scatter(ax3, mean(avg_pCRFparams(:,2,rroi)), mean(avg_deconvparams(:,2,rroi)),'o','filled','SizeData',(indvDotsize*6),'MarkerEdgeColor', 'k','MarkerFaceColor', cell2mat(roiColors(rroi)));
-            errorbar(ax3, mean(avg_pCRFparams(:,2,rroi)), mean(avg_deconvparams(:,2,rroi)),std(avg_pCRFparams(:,2,rroi))/sqrt(numSubjects),'k.','horizontal','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
-            errorbar(ax3, mean(avg_pCRFparams(:,2,rroi)), mean(avg_deconvparams(:,2,rroi)),std(avg_deconvparams(:,2,rroi))/sqrt(numSubjects),'k.','vertical','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
-        end
+    scatter(ax3, roi*ones(1,numSubjects), corr(:,2), 'o', ...
+        'MarkerFaceColor', cell2mat(roiColors(roi)) ,'MarkerEdgeColor',cell2mat(roiColors(roi)), ...
+        'SizeData',indvDotsize*2, 'MarkerFaceAlpha',mrkr_alpha, 'MarkerEdgeAlpha',mrkr_alpha, 'HandleVisibility','off');
 
-        legend(ax3, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 16)
-        xlabel(ax3, 'Model-based n','FontSize',10), 
-        ylabel(ax3, 'Deconvolution n','FontSize',10)
-        set(ax3, 'XLim', [0 10], 'XTick',0:5:10, 'YLim', [0 10], 'YTick', 0:5:10);
-        axis(ax3, 'square');
+    % plot scatter ROI means (high opacity, with error bars, ROI color)
+    scatter(ax3, roi, avg_corr(:,2),'o','filled','SizeData',(indvDotsize*6),'MarkerEdgeColor', 'k','MarkerFaceColor', cell2mat(roiColors(roi)));
+    errorbar(ax3, roi, avg_corr(:,2), std_corr(:,2)/sqrt(numSubjects),'k.','CapSize',0, 'lineWidth', errBarWidth, 'handlevisibility', 'off')
+
+    if roi == 3 
+%         legend(ax3, ['V1';'V2';'V3'], 'Location', 'NorthWest', 'box', 'off', 'fontsize', 10)
+        ylabel(ax3, 'corr','FontSize',10)
+        set(ax3, 'XLim', [0 4], 'XTick', 1:3, 'XTickLabel', opts.ROInames, ...
+            'YLim', [-0.2 1])
+        %set(ax3, 'XLim', [0 10], 'XTick',0:5:10, 'YLim', [0 10], 'YTick', 0:5:10);
     end
 
 end

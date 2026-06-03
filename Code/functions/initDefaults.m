@@ -47,7 +47,7 @@ defaults = { %Default settings for popCRF
             'downSample_f', 1/0.5;
             'totalTR', 298;
             'BOLDlag', 5;
-            'useHRF', 'spm';
+            'useHRF', 'fit';
             'numShuffle', 100;
             'num_cores', 1;
             };
