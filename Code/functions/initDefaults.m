@@ -50,6 +50,10 @@ defaults = { %Default settings for popCRF
             'useHRF', 'fit';
             'numShuffle', 100;
             'num_cores', 1;
+            'R2max', [0.3, 0.2, 0.1];
+            'roiColors', {[0.3176    0.3961    0.6824]; ...
+                            [0.1176    0.6745    0.8549]; ...
+                            [0.3843    0.7490    0.4863]};
             };
 
 for f_idx = 1:size(defaults,1)

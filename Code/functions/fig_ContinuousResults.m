@@ -36,15 +36,11 @@ tVals           = NaN(numROIs, 1);
 df              = NaN(numROIs, 1);
 meanImprov      = NaN(numROIs, 1);
 
-%-- setup roi colors
-roiColors       = {[0.3176    0.3961    0.6824]; %[0.2744    0.3735    0.9857];
-                   [0.1176    0.6745    0.8549]; %[0.0981    0.6774    0.8626];
-                   [0.3843    0.7490    0.4863]}; %[0.3291    0.8001    0.4884]};
-
+%-- setup figure 
+roiColors       = opts.roiColors;
 indvDotsize     = 5;
 errBarWidth     = 2;
 numBins         = 40;
-R2max           = [0.3, 0.2, 0.1];
 taskResults     = allResults(2);
 
 for roi = 1:numROIs
@@ -54,11 +50,11 @@ for roi = 1:numROIs
     for s = 1:numSubjects
 
         % 2d histogram
-        pts                     = linspace(0,R2max(roi),numBins+1);
+        pts                     = linspace(0,opts.R2max(roi),numBins+1);
         nR2(:,:,s)              = histcounts2(allResults(2).crossR2{s,roi}, allResults(1).crossR2{s,roi}, ...
                                         pts, pts, 'Normalization', 'probability'); 
 
-        voxSelect               = allResults(1).crossR2{s,roi} >= (R2max(roi)/6) & taskResults.crossR2{s,roi} >= (R2max(roi)/6);
+        voxSelect               = allResults(1).voxSelect{s,roi} & taskResults.voxSelect{s,roi};
 
         % get and reorder parameter estimates
         [~, idx]                = ismember(paramLabels, taskResults.paramLabels);
@@ -87,8 +83,8 @@ for roi = 1:numROIs
         'YDir', 'normal');
     colormap(ax, "bone")
     hold on, 
-    plot(gca, [R2max(roi)/6 R2max(roi)/6], [0 R2max(roi)], 'w:', 'LineWidth', 1.5)
-    plot(gca, [0 R2max(roi)], [R2max(roi)/6 R2max(roi)/6], 'w:', 'LineWidth', 1.5)
+    plot(gca, [opts.R2max(roi)/6 opts.R2max(roi)/6], [0 opts.R2max(roi)], 'w:', 'LineWidth', 1.5)
+    plot(gca, [0 opts.R2max(roi)], [opts.R2max(roi)/6 opts.R2max(roi)/6], 'w:', 'LineWidth', 1.5)
 
     caxis(ax,[0 0.005])
     axis square; box off

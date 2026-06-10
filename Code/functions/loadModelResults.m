@@ -26,7 +26,9 @@ allResults      = struct('allParams', structSize, ...
                          'paramLabels', structSize, ...
                          'SSE', structSize, ...
                          'nullSSE', structSize, ...
+                         'nullImprv', structSize, ...
                          'crossR2', structSize, ...
+                         'voxSelect', structSize, ...
                          'nullR2', structSize, ...
                          'voxCorr', structSize, ...
                          'fisherCorr', structSize, ...
@@ -137,6 +139,7 @@ for ii = 1:numTasks
                         case "cross" % extract cross validated r2
 
                             allResults(ii).crossR2{s,roi}    = modelResults.out.crossR2(roiIndx);
+                            allResults(ii).voxSelect{s,roi}  = allResults(1).crossR2{s,roi} >= (opts.R2max(roi)/6);
 
                         case "null" % extract noise floor model fits
 
@@ -144,14 +147,25 @@ for ii = 1:numTasks
                             allResults(ii).nullSSE{s,roi}    = modelResults.out.nullSSE(:,roiIndx);
 
                     end
+                
+                    if jj == numel(loadStr)
+                        
+                        %-- compute how much better model explains data compared to null
+                        % improvement per voxel and null sample
+                        SSE_model               = allResults(ii).SSE{s,roi};          
+                        SSE_null                = median(allResults(ii).nullSSE{s,roi},1)';
 
+                        % normalize improvement by null: (null - model) / null
+                        allResults(ii).nullImprv = ((SSE_null - SSE_model) ./ SSE_null) * 100; 
+
+                    end
+                
                 end % end of roi loop
                 
             end % end of subject loop
             
         end % end of loadstr loop
-        
-        
+                
         %-- save summary output
         taskResults     = allResults(ii);
         save(fullfile(outDir, saveName), 'taskResults')

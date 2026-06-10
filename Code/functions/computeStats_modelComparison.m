@@ -1,7 +1,7 @@
 function computeStats_modelComparison(opts, avgParams, fisherCorr)
 
 if  ~exist('avgParams', 'var') || isempty(avgParams)
-    error('Need to provide avgParams struct (output from visualize_fig4.m)')
+    error('Need to provide avgParams struct (output from fig5.m)')
 end
 if  ~exist('fisherCorr', 'var') || isempty(fisherCorr)
     error('Need to provide fisherCorr variable (output from loadModelResults.m)')

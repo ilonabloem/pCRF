@@ -18,32 +18,15 @@ end
 %--
 numSubjects     = numel(opts.subjNames);
 
-%-- Combine parameters across subjects for 2d histograms
-avg_pCRFparams  = NaN(numSubjects, 3, numel(opts.ROInames));
-avg_deconvparams= NaN(numSubjects, 3, numel(opts.ROInames));
 paramLabels     = {'Rmax', 'Slope', 'C50'};
 
 %-- setup roi colors
-roiColors   = {[0.3176    0.3961    0.6824]; %[0.2744    0.3735    0.9857];
-               [0.1176    0.6745    0.8549]; %[0.0981    0.6774    0.8626];
-               [0.3843    0.7490    0.4863]}; %[0.3291    0.8001    0.4884]};
-
-roiColorMap = cell(1,numel(roiColors));
-for roi = 1:numel(roiColors)
-
-    % Build a vector of saturation values (e.g. from low to high)
-    n           = 256;   
-
-    % Combine into colormap 
-    roiColorMap{roi} = [linspace(0, roiColors{roi}(1), n)', ...
-                        linspace(0, roiColors{roi}(2), n)',...
-                        linspace(0, roiColors{roi}(3), n)'];
-end
-
+roiColors   = opts.roiColors;
+roiColorMap = makeROIColormap(roiColors);
 
 % Scatter plots of parameter estimates
-fig4        = figure('color', [1 1 1], 'Position', [0 0 780 760]);
-set(fig4,'Units', 'Pixels', 'PaperPositionMode','Auto','PaperUnits','points','PaperSize',[780 760])
+fig         = figure('color', [1 1 1], 'Position', [0 0 780 760]);
+set(fig,'Units', 'Pixels', 'PaperPositionMode','Auto','PaperUnits','points','PaperSize',[780 760])
 figlayout   = tiledlayout(3,1);
 c50layout   = tiledlayout(figlayout, 1, 4);
 rmaxlayout  = tiledlayout(figlayout, 1, 4);
@@ -66,9 +49,6 @@ for roi = 1:3
         [~, idx]    = ismember(paramLabels, taskResults.paramLabels);
         pCRFParam   = taskResults.allParams{sub,roi}(:,idx);
         deconvParam = taskResults.jneuroParams(sub,roi).est_params_allVoxels ./ [1 1 100];
-
-        avg_pCRFparams(sub,:,roi)     = median(pCRFParam, 'omitnan');
-        avg_deconvparams(sub,:,roi)   = median(deconvParam, 'omitnan');
 
         % C50
         indx            = strcmp(paramLabels, 'C50');
@@ -158,7 +138,7 @@ for roi = 1:numel(opts.ROInames)
     
     fishz_corr  = taskResults.fisherCorr(:,:,roi);
     corr        = tanh(fishz_corr);
-    avg_corr    = tanh(mean(fishz_corr,1))
+    avg_corr    = tanh(mean(fishz_corr,1));
     std_corr    = tanh(std(fishz_corr));
        
     % c50
@@ -223,16 +203,7 @@ end
 
 if opts.savePlots > 0
     if ~exist(fullfile(opts.figureDir, 'Figure4'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure4')); end
-    print(fig4, fullfile(opts.figureDir, 'Figure4', sprintf('Fig4_ModelComparison_CRFparam')), '-dpdf');
+    print(fig, fullfile(opts.figureDir, 'Figure4', sprintf('Fig4_ModelComparison_CRFparam')), '-dpdf');
 end
 
-%-- out
-out.modelbasedParams    = avg_pCRFparams;
-out.deconvParams        = avg_deconvparams;
-out.paramLabels         = paramLabels;
-
-% Do stats modeling comparison on same dataset
-if doStats > 0
-    computeStats_modelComparison(opts, out, taskResults.fisherCorr)
-end
-
+out = taskResults.fisherCorr;
