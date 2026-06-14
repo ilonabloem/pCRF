@@ -31,9 +31,5 @@ switch userName
 
 	otherwise % for all other users data and code should both be in the rootPath 
 		
-		fprintf(['Assuming standard project layout:\n' ...
-					'  code directory: %s\n' ...
-					'  data directory: %s\n'], ...
-					fullfile(filePath), fullfile(rootPath, 'Data'));
 		dataRootPath     = fullfile(rootPath, 'Data');
 end
