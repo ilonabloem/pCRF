@@ -136,8 +136,9 @@ for exp = 1:numel(voxIDs)
     box off; axis square
     title(sprintf('%.2f crossR2 time series fit', crossResults.out.crossR2(voxID)))
     
-    if ~exist(fullfile(figureDir, 'Figure2'), 'dir'), mkdir(fullfile(figureDir, 'Figure2')), end
-    sgtitle(sprintf('sub %s - ROI %s - vox #%i', opts.subjNames{exmplSubject}, opts.ROInames{whichROI}, voxID))
-    print(figHandle, fullfile(figureDir, 'Figure2', sprintf('Fig2_s%s_vox-%i_modelSchematic', opts.subjNames{exmplSubject}, voxID)), '-dpdf')
-
+    if opts.savePlots > 0
+        if ~exist(fullfile(figureDir, 'Figure2'), 'dir'), mkdir(fullfile(figureDir, 'Figure2')), end
+        sgtitle(sprintf('sub %s - ROI %s - vox #%i', opts.subjNames{exmplSubject}, opts.ROInames{whichROI}, voxID))
+        print(figHandle, fullfile(figureDir, 'Figure2', sprintf('Fig2_s%s_vox-%i_modelSchematic', opts.subjNames{exmplSubject}, voxID)), '-dpdf')
+    end
 end
