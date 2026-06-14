@@ -156,7 +156,7 @@ for ii = 1:numTasks
                         SSE_null                = median(allResults(ii).nullSSE{s,roi},1)';
 
                         % normalize improvement by null: (null - model) / null
-                        allResults(ii).nullImprv = ((SSE_null - SSE_model) ./ SSE_null) * 100; 
+                        allResults(ii).nullImprv{s,roi} = ((SSE_null - SSE_model) ./ SSE_null) * 100; 
 
                     end
                 
