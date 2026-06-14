@@ -20,7 +20,7 @@ set(gcf, 'Units', 'Pixels', 'PaperPositionMode','Auto','PaperUnits','points','Pa
 ax = nexttile;
 % standard CRF
 semilogx(C, NRFunc([rMax, n, C50], C), 'Color', [1 0 0], 'linewidth', 2);
-hold all, 
+hold('on'), 
 
 %rmax change
 semilogx(C, NRFunc([rMax-0.4, n, C50], C), '--', 'Color', [1 0.5 0.5], 'linewidth', 2)
@@ -39,9 +39,9 @@ ax.XAxis.MinorTickValues = minorTicks;
 ax.TickLength = [0.02 0.05];
 xlabel('Contrast')
 ylabel('Response')
+legend('''standard CRF''', 'Rmax decrease', 'C50 increase', 'slope increase', 'Location','northwest')
 
-if ~exist(fullfile(opts.figureDir, 'Figure3'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure3')); end
-print(gcf, fullfile(opts.figureDir, 'Figure3', sprintf('Fig3_CRF')), '-dpdf');
-
-
-
+if opts.savePlots > 0
+    if ~exist(fullfile(opts.figureDir, 'Figure3'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure3')); end
+    print(gcf, fullfile(opts.figureDir, 'Figure3', sprintf('Fig3_CRF')), '-dpdf');
+end
