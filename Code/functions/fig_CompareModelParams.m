@@ -1,4 +1,4 @@
-function out = fig_CompareModelParams(opts, taskResults, doStats)
+function out = fig_CompareModelParams(opts, taskResults)
 
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)
@@ -10,9 +10,6 @@ if  ~exist('taskResults', 'var') || isempty(taskResults)
     opts.tasks      = {'JN2022Event'};
     opts            = initDefaults(opts);
     taskResults     = loadModelResults(opts);
-end
-if  ~exist('doStats', 'var') || isempty(doStats)
-    doStats         = true; % default to do the stats
 end
 
 %--
