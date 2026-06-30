@@ -1,4 +1,4 @@
-function out = fig_CompareModelParams(opts, taskResults)
+function fig_CompareModelParams(opts, taskResults)
 
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)
@@ -202,5 +202,3 @@ if opts.savePlots > 0
     if ~exist(fullfile(opts.figureDir, 'Figure4'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure4')); end
     print(fig, fullfile(opts.figureDir, 'Figure4', sprintf('Fig4_ModelComparison_CRFparam')), '-dpdf');
 end
-
-out = taskResults.fisherCorr;

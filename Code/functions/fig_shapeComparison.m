@@ -1,4 +1,4 @@
-function fig_shapeComparison(opts, taskResults)
+function fig_shapeComparison(opts, taskResults, doStats)
 
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)
@@ -10,6 +10,9 @@ if  ~exist('taskResults', 'var') || isempty(taskResults)
     opts.tasks      = {'JN2022Event'};
     opts            = initDefaults(opts);
     taskResults     = loadModelResults(opts);
+end
+if  ~exist('doStats', 'var') || isempty(doStats)
+    doStats         = true; % default to do the stats
 end
 
 %--
@@ -82,7 +85,6 @@ for roi = 1:3
         selectR2                = R2_shape;
         selectR2(R2_shape < -5) = NaN;
         numOutlierVox(sub,roi)  = sum(isnan(selectR2));
-        ratioOutlier(sub,roi)   = numOutlierVox(sub,roi) / size(pCRFParam,1);
         med_R2shape(sub,roi)    = median(selectR2, 'omitnan');      
         
         %-- keep example sub CRF shapes
@@ -173,7 +175,26 @@ title(roilayout, 'Representative participant')
 
 if opts.savePlots > 0
     if ~exist(fullfile(opts.figureDir, 'Figure5'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure5')); end
-    print(fig, fullfile(opts.figureDir, 'Figure5', sprintf('Fig5_CRFshapeComparison')), '-dpdf');
+    print(fig, fullfile(opts.figureDir, 'Figure5', sprintf('Fig5_CRFshapeComparison')), '-dpdf','-vector');
 end
 
+if doStats > 0
 
+    %-- Report R2 shape comparison
+    [~,p,ci,stat]   = ttest(med_R2shape, 0);
+    df              = stat.df;
+    tstat           = stat.tstat;
+    meanR2          = mean(med_R2shape,1);
+    
+    shapeR2         = table(opts.ROInames(:), p(:), df(:), tstat(:), meanR2(:), ci(1,:)', ci(2,:)', ...
+                        'VariableNames', {'ROI','p','df','tstat', 'mean', 'lb_mean', 'ub_mean'});
+
+    fprintf('ttest shape R2 == 0 (CRF shape comparison)\n ')
+    disp(shapeR2)
+    if opts.savePlots > 0
+        writetable(shapeR2, fullfile(opts.figureDir, 'stats', sprintf('%s_shapeR2.csv', 'JN2022Event')), ...
+               'FileType', 'text', 'Delimiter', ';', ...
+               'WriteRowNames', false);
+    end
+
+end

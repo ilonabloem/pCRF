@@ -1,4 +1,4 @@
-function out = fig_semisaturationVSeccen(opts, allResults)
+function fig_voxelwisePatterns(opts, allResults, doStats)
 
 %-- check inputs
 if  ~exist('opts', 'var') || isempty(opts)
@@ -9,6 +9,9 @@ end
 if  ~exist('allResults', 'var') || isempty(allResults)
     opts            = initDefaults(opts);
     allResults      = loadModelResults(opts);
+end
+if  ~exist('doStats', 'var') || isempty(doStats)
+    doStats         = true; % default to do the stats
 end
 
 %--
@@ -24,15 +27,19 @@ roiColorMap = makeROIColormap(roiColors);
 % Scatter plots of parameter estimates
 fig        = figure('color', [1 1 1], 'Position', [0 0 780 760]);
 set(fig,'Units', 'Pixels', 'PaperPositionMode','Auto','PaperUnits','points','PaperSize',[780 760])
-figlayout   = tiledlayout(2,1);
-eccenlayout = tiledlayout(figlayout, 1, 3);
+figlayout   = tiledlayout(3,1);
 paramlayout = tiledlayout(figlayout, 1, 3);
+eventlayout = tiledlayout(figlayout, 1, 3);
+contlayout  = tiledlayout(figlayout, 1, 3);
+
 numBins     = 40;
 ptsC50      = linspace(0,1,numBins+1);
 ptsEccen    = linspace(0,10,numBins+1);
 
 avg_pCRFparams  = NaN(numSubjects, 3, numel(opts.ROInames));
 avg_deconvparams= NaN(numSubjects, 3, numel(opts.ROInames));
+rhoEvent    = NaN(numSubjects, numel(opts.ROInames));
+rhoCont     = NaN(numSubjects, numel(opts.ROInames));
 
 for roi = 1:3
 
@@ -49,17 +56,19 @@ for roi = 1:3
 
         indx        = strcmp(paramLabels, 'C50');
         deconvC50   = deconvParam(:,indx);
-        modelC50     = pCRFParam(:,indx);
+        modelC50    = pCRFParam(:,indx);
         eccen       = allResults(1).prfEcc{sub, roi};
 
         % jneuro eventrelated C50 vs eccen
         nEvent(:,:,sub)   = histcounts2(deconvC50(:), eccen, ...
                                      ptsC50, ptsEccen, 'Normalization', 'probability'); 
+        rhoEvent(sub,roi) = corr(eccen, deconvC50, 'type', 'Spearman', 'Rows', 'pairwise'); 
 
         % continuous c50 vs eccen
-        nCont(:,:,sub)  = histcounts2(modelC50(:), eccen, ...
+        nCont(:,:,sub)    = histcounts2(modelC50(:), eccen, ...
                                     ptsC50, ptsEccen, 'Normalization', 'probability'); 
-                                
+        rhoCont(sub,roi)  = corr(eccen, modelC50, 'type', 'Spearman', 'Rows', 'pairwise');
+
         % save average parameter estimates       
         avg_pCRFparams(sub,:,roi)     = median(pCRFParam, 'omitnan');
         avg_deconvparams(sub,:,roi)   = median(deconvParam, 'omitnan');
@@ -67,8 +76,8 @@ for roi = 1:3
     end
     
     % event-related c50
-    eccenlayout.Layout.Tile = 2;
-    ax = nexttile(eccenlayout);    
+    eventlayout.Layout.Tile = 2;
+    ax = nexttile(eventlayout);    
     imagesc(ptsEccen, ptsC50, mean(nEvent,3));      
     set(gca, 'XLim', ptsEccen([1 end]), 'XTick', [0 5 10], 'XTickLabel', [0 5 10], ...
         'YLim', ptsC50([1 end]), 'YTick', [0 .5 1], 'YTickLabel', [0 50 100], ...
@@ -78,26 +87,26 @@ for roi = 1:3
     axis square; box off
     if roi == 1
         xlabel('Eccentricity', 'FontSize', 10)
-        ylabel('C50 model-based estimates', 'FontSize', 10)
-        title(eccenlayout, 'Event-related dataset', 'FontSize', 14)
+        ylabel('Model-based C50 estimates', 'FontSize', 10)
+        title(eventlayout, 'Event-related dataset', 'FontSize', 14)
     end
     
     % continuous c50
-%     contlayout.Layout.Tile = 2;
-%     ax  = nexttile(contlayout);
-%     imagesc(ptsEccen, ptsC50, mean(nCont,3));
-%     set(gca, 'XLim', ptsEccen([1 end]), 'XTick', ptsEccen([1 21 41]), ...
-%         'YLim', ptsC50([1 end]), 'YTick', ptsC50([1 21 41])*100, ...
-%         'YDir', 'normal');
-%     colormap(ax, roiColorMap{roi})
-%     caxis(ax, [0 0.005]); box off
-%     axis square
-% 
-%     if roi == 1
-%         xlabel('Eccentricity', 'FontSize', 10)
-%         ylabel('C50 Model-based Estimates', 'FontSize', 10)
-%         title(contlayout, 'Continuous dataset', 'FontSize', 14)
-%     end
+    contlayout.Layout.Tile = 3;
+    ax  = nexttile(contlayout);
+    imagesc(ptsEccen, ptsC50, mean(nCont,3));
+    set(gca, 'XLim', ptsEccen([1 end]), 'XTick', ptsEccen([1 21 41]), ...
+        'YLim', ptsC50([1 41]), 'YTick', ptsC50([1 21 41]), 'ytickLabel', ptsC50([1 21 41])*100, ...
+        'YDir', 'normal');
+    colormap(ax, roiColorMap{roi})
+    caxis(ax, [0 0.005]); box off
+    axis square
+
+    if roi == 1
+        xlabel('Eccentricity', 'FontSize', 10)
+        ylabel('Model-based C50 estimates', 'FontSize', 10)
+        title(contlayout, 'Continuous dataset', 'FontSize', 14)
+    end
 
 end
 
@@ -181,14 +190,56 @@ for roi = 1:numel(opts.ROInames)
         axis(ax3, 'square');
     end
 
+    %-- single ttest for fisher z corrected correlation 
+    % if sig evidence for linear relationship between eccentricity and C50
+    zEvent          = 0.5 .* (log(1+rhoEvent(:,roi)) - log(1-rhoEvent(:,roi)));
+    [~,p,ci,stat]   = ttest(zEvent, 0); % test against 0
+    event.pval(roi,1) = p;
+    event.df(roi,1)   = stat.df;
+    event.tstat(roi,1)= stat.tstat;
+    
+    % transform to r for reporting
+    event.meanRho(roi,1) = tanh(mean(zEvent)); 
+    event.CI(roi,:)    = tanh(ci);  
+
+    zCont           = 0.5 .* (log(1+rhoCont(:,roi)) - log(1-rhoCont(:,roi)));
+    [~,p,ci,stat]   = ttest(zCont, 0); % test against 0
+    cont.pval(roi,1)  = p;
+    cont.df(roi,1)    = stat.df;
+    cont.tstat(roi,1) = stat.tstat;
+    
+    % transform to r for reporting
+    cont.meanRho(roi,1) = tanh(mean(zCont)); 
+    cont.CI(roi,:)    = tanh(ci);  
+
+end
+
+if doStats > 0
+    % results from voxel-wise fisher-z correlation
+    event_eccenVSC50 = table(opts.ROInames', event.pval, event.df, event.tstat, event.meanRho, event.CI(:,1), event.CI(:,2), ...
+                        'VariableNames', {'ROI','fishz_p','fishz_df','fishz_tstat', 'mean_rho', 'lb_rho', 'ub_rho'});
+    
+    fprintf('Exp 1: voxel-wise fisher-z correlation (eccen vs C50)\n ')
+    disp(event_eccenVSC50)
+    if opts.savePlots > 0
+        writetable(event_eccenVSC50, fullfile(opts.figureDir, 'stats', sprintf('%s_corr_eccenVSC50.csv', 'JN2022Event')), ...
+               'FileType', 'text', 'Delimiter', ',', ...
+               'WriteRowNames', false);
+    end
+    
+    cont_eccenVSC50 = table(opts.ROInames', cont.pval, cont.df, cont.tstat, cont.meanRho, cont.CI(:,1), cont.CI(:,2), ...
+                        'VariableNames', {'ROI','fishz_p','fishz_df','fishz_tstat', 'mean_rho', 'lb_rho', 'ub_rho'});
+    
+    fprintf('Exp 2: voxel-wise fisher-z correlation (eccen vs C50)\n ')
+    disp(cont_eccenVSC50)
+    if opts.savePlots > 0
+        writetable(cont_eccenVSC50, fullfile(opts.figureDir, 'stats', sprintf('%s_corr_eccenVSC50.csv', 'RapidEvent')), ...
+               'FileType', 'text', 'Delimiter', ',', ...
+               'WriteRowNames', false);
+    end
 end
 
 if opts.savePlots > 0
-    if ~exist(fullfile(opts.figureDir, 'Figure4'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure4')); end
-    print(fig4, fullfile(opts.figureDir, 'Figure4', sprintf('Fig4_ModelComparison_CRFparam')), '-dpdf');
+    if ~exist(fullfile(opts.figureDir, 'Figure7'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure7')); end
+    print(fig, fullfile(opts.figureDir, 'Figure7', sprintf('Fig7_voxelwisePatterns')), '-dpdf');
 end
-
-
-out.modelbasedParams    = avg_pCRFparams;
-out.deconvParams        = avg_deconvparams;
-out.paramLabels         = paramLabels;

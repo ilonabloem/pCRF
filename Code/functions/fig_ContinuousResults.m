@@ -170,8 +170,8 @@ for roi = 1:numROIs
 end
 
 if opts.savePlots > 0
-    if ~exist(fullfile(opts.figureDir, 'Figure5'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure5')); end
-    print(figAvgParams, fullfile(opts.figureDir, 'Figure5', sprintf('Fig5_continuous_pCRF')), '-dpdf');
+    if ~exist(fullfile(opts.figureDir, 'Figure6'), 'dir'), mkdir(fullfile(opts.figureDir, 'Figure6')); end
+    print(figAvgParams, fullfile(opts.figureDir, 'Figure6', sprintf('Fig6_continuous_pCRF')), '-dpdf');
 end
 
 if doStats > 0
